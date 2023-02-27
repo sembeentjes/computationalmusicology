@@ -1,0 +1,77 @@
+---
+title: "index.Rmd"
+author: "Sem Beentjes"
+date: '2023-02-27'
+output: 
+  flexdashboard::flex_dashboard:
+    storyboard: true
+    theme: bootstrap
+---
+    
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(spotifyr)
+library(tidyverse)
+library(flexdashboard)
+library(plotly)
+library(Cairo)
+
+thebends <- get_playlist_audio_features("", "3YGj8blWCJoTWfEngyKQAM?si=9752c01ddc294055")
+
+okcomputer <- get_playlist_audio_features("", "4oskn4uMBsPa2iC9oElNpb?si=1a03352822d140ac")
+
+bends_vs_computer <-
+  bind_rows(
+    thebends |> mutate(category = "The Bends"),
+    okcomputer |> mutate(category = "OK Computer"))
+
+bendscomputer_plot <- ggplot(bends_vs_computer, aes(valence, tempo, size = loudness, color = mode)) +
+  geom_point() +
+  facet_wrap(~ category) +
+  theme_light() +
+  scale_x_continuous(
+    limits = c(0, 1),
+    breaks = c(0, 0.50, 1),
+    minor_breaks = NULL) +
+  labs(
+    x = "Valence",
+    y = "Tempo",
+    colour = "Mode",
+    size = "Loudness"
+  ) +
+  scale_size_continuous(      
+    guide = "none"           
+  ) +
+  scale_color_continuous(
+    guide = "none")
+  
+interactive_plot_bendsvscomputer <- ggplotly(bendscomputer_plot)
+
+```
+
+### Introduction
+
+Radiohead is an English alternative-rock band known mostly for their use of experimental soundscapes and abtract lyricism knowadays, but this wasn't always the case. Before the release of their third commercial album "OK Computer" in 1997, Radiohead made more guitar-centered, lyrically introspective music. OK Computer is largely believed to have laid the groundwork for their later, more experimental albums such as "Kid A" and "Hail to the Thief". But was this album really so groundbreaking for the band, or were there signs of more experimental interests within the bands earlier albums, when analysing them in Spotify? Or is it possible that Spotify altered some labels/genres because of the image Radiohead had already acquired before Spotify released in the first place? Looking at the audio feature for each of their albums, I hope to be able to showcase the change in Radioheads music throughout the years.
+
+### Comparing the albums The Bends (1995) and OK Computer (1997), with Valence on the x-axis and Tempo on the y-axis
+
+
+```{r, echo=FALSE}
+
+interactive_plot_bendsvscomputer
+
+```
+
+***
+
+In the provided graph, two Radiohead albums are compared to eachother, The Bends (1995) and OK Computer (1997). While The Bends is mostly seen as a rock album, without that much groundbreaking/experimental elements, and a heavy focus on guitars. But OK Computer was seen as groundbreaking at the time, and was a lot more focused on experimental soundscapes and abstract lyrics. 
+
+***
+
+In the graph, the albums are compared on tempo and validity, with the size of the dots representing loudness and the color representing mode. One interesting thing to note is that the validity ratings of OK Computer are visibly lower than the ones on The Bends. This means that, according to Spotify, OK Computer is a more sad album compared to The Bends. 
+
+
+***
+
+Also noteworthy is that the tempo on OK Computer seems to be lower than the tempo on The Bends, which supports the notion that The Bends was more of a rock album than OK Computer. Lastly, the amount of songs in a minor vs major key are not significally different between the albums, with The Bends having 3 out of their 12 songs in a minor key and OK Computer having 4 out of their 12 songs being in minor key.
